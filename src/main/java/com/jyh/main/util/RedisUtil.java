@@ -3217,6 +3217,11 @@ public class RedisUtil implements ApplicationContextAware {
 	 */
 	public static class RedisOpsResultIsNullException extends NullPointerException {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public RedisOpsResultIsNullException() {
 			super();
 		}

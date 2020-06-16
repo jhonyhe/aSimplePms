@@ -11,6 +11,7 @@ public class User {
          private String summarise;
          private String salary;
          private String age;
+         private String role_id;
 		public String getId() {
 			return id;
 		}
@@ -70,6 +71,12 @@ public class User {
 		}
 		public void setAge(String age) {
 			this.age = age;
+		}
+		public String getRole_id() {
+			return role_id;
+		}
+		public void setRole_id(String role_id) {
+			this.role_id = role_id;
 		}
          
 }

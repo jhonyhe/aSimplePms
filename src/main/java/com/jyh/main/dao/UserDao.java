@@ -31,20 +31,6 @@ public class UserDao {
     public User findUserByName(String id,String passWord) {
         Query query=new Query(Criteria.where("id").is(id).and("passWord").is(passWord));
         User user =  mongoTemplate.findOne(query , User.class);
-        /*LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
-        map.put("status", 200);
-        map.put("responseParam", "查询结束");
-        if (user==null) {
-        	map.put("status", 202);
-            map.put("responseParam", "查询结束");
-        	map.put("user", user==null?new User():user);
-		}else {
-			map.put("status", 200);
-	        map.put("responseParam", "查询结束");
-			 map.put("user", user);
-		}
-       */
-       // return new Gson().toJson(map);
         return user;
     }
  
@@ -67,12 +53,6 @@ public class UserDao {
         		;
         //更新查询返回结果集的第一条
         mongoTemplate.updateFirst(query,update,User.class);
-        //更新查询返回结果集的所有
-        // mongoTemplate.updateMulti(query,update,TestEntity.class);
-        /*LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
-        map.put("status", 200);
-        map.put("responseParam", "更新结束");
-        */
         return user;
     }
  

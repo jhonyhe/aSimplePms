@@ -22,12 +22,12 @@ public class RoleController {
     private RoleDao roleDao;
     
     
-    @GetMapping(value="/addRole")
+    @GetMapping(value="/role/addRole")
     public void saveRole(Role role) throws Exception {
     	roleDao.saveRole(role);
     }
  
-    @GetMapping(value="/findRole")
+    @GetMapping(value="/role/findRole")
     public String findRoleById(String role_id,HttpServletRequest request){
     	System.out.println("role_id = " + role_id);
     	Role role = roleDao.findRoleById(role_id);
@@ -40,19 +40,19 @@ public class RoleController {
 			map.put("status", 200);
 			 map.put("role", role);
 		}
-    	RedisUtil.StringOps.set("role",new Gson().toJson(role));
-        return new Gson().toJson(role);
+    	RedisUtil.StringOps.set("role",new Gson().toJson(map));
+        return new Gson().toJson(map);
     }
  
     
-    @GetMapping(value="/updateRole")
+    @GetMapping(value="/role/updateRole")
     public String updateRole(Role role){
     	Role newrole= roleDao.updateRole(role);
     	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
          map.put("responseParam", "查询结束");
          if (newrole==null) {
          	map.put("status", 202);
-         	map.put("role", newrole==null?new Role():newrole);
+         	map.put("role", new Role());
  		}else {
  			map.put("status", 200);
  			 map.put("role", newrole);
@@ -61,7 +61,7 @@ public class RoleController {
     	return new Gson().toJson(map);
     }
  
-    @GetMapping(value="/deleteRole")
+    @GetMapping(value="/role/deleteRole")
     public void deleteRoleById(String role_id){
     	roleDao.deleteRoleById(role_id);
         RedisUtil.StringOps.set("role", new String());

@@ -1,8 +1,8 @@
 package com.jyh.main.modle;
 
 public class User {
-	     private String id;
-         private String passWord;
+	     private String username;
+         private String password;
          private String name;
          private String nikeName;
          private String ranking;
@@ -12,17 +12,13 @@ public class User {
          private String salary;
          private String age;
          private String role_id;
-		public String getId() {
-			return id;
-		}
-		public void setId(String id) {
-			this.id = id;
-		}
+         private String p_id;
+
 		public String getPassWord() {
-			return passWord;
+			return password;
 		}
 		public void setPassWord(String passWord) {
-			this.passWord = passWord;
+			this.password = passWord;
 		}
 		public String getName() {
 			return name;
@@ -77,6 +73,18 @@ public class User {
 		}
 		public void setRole_id(String role_id) {
 			this.role_id = role_id;
+		}
+		public String getP_id() {
+			return p_id;
+		}
+		public void setP_id(String p_id) {
+			this.p_id = p_id;
+		}
+		public String getUsername() {
+			return username;
+		}
+		public void setUsername(String username) {
+			this.username = username;
 		}
          
 }

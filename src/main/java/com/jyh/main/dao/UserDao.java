@@ -28,8 +28,8 @@ public class UserDao {
      * 根据用户名和密码查询对象
      * @return
      */
-    public User findUserByName(String id,String passWord) {
-        Query query=new Query(Criteria.where("id").is(id).and("passWord").is(passWord));
+    public User findUserByName(String username,String passWord) {
+        Query query=new Query(Criteria.where("username").is(username).and("password").is(passWord));
         User user =  mongoTemplate.findOne(query , User.class);
         return user;
     }
@@ -38,9 +38,9 @@ public class UserDao {
      * 更新对象
      */
     public User updateUser(User user) {
-        Query query=new Query(Criteria.where("id").is(user.getId()));
+        Query query=new Query(Criteria.where("username").is(user.getUsername()));
         //更新数据库
-        Update update= new Update().set("passWord", user.getPassWord())
+        Update update= new Update().set("password", user.getPassWord())
         		.set("name", user.getName())
         		.set("nikeName", user.getNikeName())
         		.set("ranking", user.getRanking())
@@ -50,6 +50,7 @@ public class UserDao {
         		.set("salary", user.getSalary())
         		.set("age",user.getAge())
         		.set("role_id", user.getRole_id())
+        		.set("p_id", user.getP_id())
         		;
         //更新查询返回结果集的第一条
         mongoTemplate.updateFirst(query,update,User.class);
@@ -60,8 +61,15 @@ public class UserDao {
      * 删除对象
      * @param id
      */
-    public void deleteUserById(String id) {
-        Query query=new Query(Criteria.where("id").is(id));
+    public void deleteUserById(String username) {
+        Query query=new Query(Criteria.where("username").is(username));
         mongoTemplate.remove(query,User.class);
     }
+
+	public User findUserByName(String username) {
+		// TODO Auto-generated method stub
+		Query query=new Query(Criteria.where("username").is(username));
+        User user =  mongoTemplate.findOne(query , User.class);
+        return user;
+	}
 }

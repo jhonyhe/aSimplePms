@@ -43,6 +43,12 @@ public class UserController {
     	return "success";
     }
     
+    @GetMapping(value = "/error")
+    public void error() throws Exception {
+    	System.out.println("error");
+    	//return "success";
+    }
+    
     @GetMapping(value = "/unauthorized")
     public String unauthorized() throws Exception {
     	System.out.println("unauthorized");
@@ -92,27 +98,27 @@ public class UserController {
     	User user = userDao.findUserByName(username, passWord);
     	Role role= new Role();
     	Privilege privilege= new Privilege();
-    	if(!(user.equals(null))) {
+    	if(!(user==null)) {
     		role = roleDao.findRoleById(user.getRole_id());
     		privilege = privilegeDao.findPrivilegeById(user.getP_id());
     	}
     	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("responseParam", "查询结束");
-        if (role.equals(null)) {
+        if (role==null) {
         	map.put("status", 202);
         	map.put("role", new Role());
 		}else {
 			map.put("status", 200);
 			 map.put("role", role);
 		}
-        if (user.equals(null)) {
+        if (user==null) {
         	map.put("status", 202);
         	map.put("user", new User());
 		}else {
 			map.put("status", 200);
 			 map.put("user", user);
 		}
-        if (privilege.equals(null)) {
+        if (privilege==null) {
         	map.put("status", 202);
         	map.put("privilege", new Privilege());
 		}else {

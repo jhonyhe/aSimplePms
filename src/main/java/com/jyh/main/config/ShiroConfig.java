@@ -59,19 +59,19 @@ public class ShiroConfig {
         filterChainMap.put("/swagger-ui.html/**", "anon");
         // 登录 URL 放行
         filterChainMap.put("/login", "anon");
-        filterChainMap.put("/user/*", "anon");
+        filterChainMap.put("/user/**", "anon");
         // 以“/” 开头的用户需要身份认证，authc 表示要进行身份认证
-        filterChainMap.put("/role/*", "authc");
+        filterChainMap.put("/role/**", "authc");
         // “/user/student” 开头的用户需要角色认证，是“admin”才允许
-        filterChainMap.put("/role/*", "roles[User]");
+        filterChainMap.put("/role/**", "roles[User]");
         // “/user/teacher” 开头的用户需要权限认证，是“user:create”才允许
-        filterChainMap.put("/role/*", "perms[admin]");
+        filterChainMap.put("/role/**", "perms[admin]");
         //设置权限控制
-        filterChainMap.put("/privilege/*", "authc");
+        filterChainMap.put("/privilege/**", "authc");
         // “/user/student” 开头的用户需要角色认证，是“admin”才允许
-        filterChainMap.put("/privilege/*", "roles[User]");
+        filterChainMap.put("/privilege/**", "roles[User]");
         // “/user/teacher” 开头的用户需要权限认证，是“user:create”才允许
-        filterChainMap.put("/privilege/*", "perms[admin]");
+        filterChainMap.put("/privilege/**", "perms[admin]");
         // 配置 logout 过滤器
         filterChainMap.put("/logout", "logout");
         // 设置 shiroFilterFactoryBean 的 FilterChainDefinitionMap

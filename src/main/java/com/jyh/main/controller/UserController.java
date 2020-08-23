@@ -7,11 +7,13 @@ import java.util.LinkedHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.catalina.Session;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
@@ -95,15 +97,16 @@ public class UserController {
         return new Gson().toJson(map);
     }
     
-    @GetMapping(value="/login")
+    @RequestMapping(value="/login")
     public String findUserByName(String username,String passWord,HttpServletRequest request,HttpSession httpSession){
     	System.out.println("username = " + username + " passWord = "+passWord);
+    	request.getSession().setMaxInactiveInterval(120*60);
     	User user = new User();
     	user.setUsername(username);
     	user.setPassWord(passWord);
     	Role role = new Role();
     	Privilege privilege = new Privilege();
-    	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>(); 
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>(); 
         map.put("responseParam", "查询结束");
         UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassWord());
          // 获取 subject 认证主体

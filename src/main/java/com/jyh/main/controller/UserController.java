@@ -98,49 +98,41 @@ public class UserController {
     @GetMapping(value="/login")
     public String findUserByName(String username,String passWord,HttpServletRequest request,HttpSession httpSession){
     	System.out.println("username = " + username + " passWord = "+passWord);
-    	User user = userDao.findUserByName(username, passWord);
-    	Role role= new Role();
-    	Privilege privilege= new Privilege();
-    	if(!(user==null)) {
-    		role = roleDao.findRoleById(user.getRole_id());
-    		privilege = privilegeDao.findPrivilegeById(user.getP_id());
-    	}
-    	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	User user = new User();
+    	user.setUsername(username);
+    	user.setPassWord(passWord);
+    	Role role = new Role();
+    	Privilege privilege = new Privilege();
+    	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>(); 
         map.put("responseParam", "查询结束");
-        if (role==null) {
-        	map.put("status", 202);
-        	map.put("role", new Role());
-		}else {
-			map.put("status", 200);
-			 map.put("role", role);
-		}
-        if (user==null) {
-        	map.put("status", 202);
-        	map.put("user", new User());
-		}else {
-			map.put("status", 200);
-			 map.put("user", user);
-		}
-        if (privilege==null) {
-        	map.put("status", 202);
-        	map.put("privilege", new Privilege());
-		}else {
-			map.put("status", 200);
-			 map.put("privilege", privilege);
-		}
-    	RedisUtil.StringOps.set("user", new Gson().toJson(map));
-    	 UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassWord());
+        UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassWord());
          // 获取 subject 认证主体
          Subject subject = SecurityUtils.getSubject();
          try{
              // 开始认证，这一步会跳到我们自定义的 Realm 中
              subject.login(token);
              request.getSession().setAttribute("user", user);
+             user = userDao.findUserByName(username, passWord);
+         	 role= roleDao.findRoleById(user.getRole_id()) ;
+         	 privilege= privilegeDao.findPrivilegeById(user.getP_id());
+         	 map.put("responseParam", "查询结束");
+         	 map.put("status", 200);
+         	 map.put("user", user);
+         	 map.put("privilege", privilege);
+         	 map.put("role", role);
+             RedisUtil.StringOps.set("user", new Gson().toJson(map));
              return "success";
          }catch(Exception e){
              e.printStackTrace();
+             user = new User();
              request.getSession().setAttribute("user", user);
              request.setAttribute("error", "用户名或密码错误！");
+             map.put("responseParam", "查询结束");
+         	 map.put("status", 202);
+         	 map.put("user", user);
+         	 map.put("privilege", privilege);
+         	 map.put("role", privilege);
+             RedisUtil.StringOps.set("user", new Gson().toJson(map));
              return "login";
          }
         //return new Gson().toJson(map);

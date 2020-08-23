@@ -48,7 +48,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-@SuppressWarnings("unused")
 public class RedisUtil implements ApplicationContextAware {
 
 	/** 使用StringRedisTemplate(，其是RedisTemplate的定制化升级) */

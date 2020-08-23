@@ -7,6 +7,9 @@ import java.util.LinkedHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -126,7 +129,21 @@ public class UserController {
 			 map.put("privilege", privilege);
 		}
     	RedisUtil.StringOps.set("user", new Gson().toJson(map));
-        return new Gson().toJson(map);
+    	 UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassWord());
+         // 获取 subject 认证主体
+         Subject subject = SecurityUtils.getSubject();
+         try{
+             // 开始认证，这一步会跳到我们自定义的 Realm 中
+             subject.login(token);
+             request.getSession().setAttribute("user", user);
+             return "success";
+         }catch(Exception e){
+             e.printStackTrace();
+             request.getSession().setAttribute("user", user);
+             request.setAttribute("error", "用户名或密码错误！");
+             return "login";
+         }
+        //return new Gson().toJson(map);
     }
  
     

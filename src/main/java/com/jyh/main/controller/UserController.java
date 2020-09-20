@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.catalina.Session;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
@@ -17,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
+import com.jyh.main.dao.PositionDao;
 import com.jyh.main.dao.PrivilegeDao;
 import com.jyh.main.dao.RoleDao;
 import com.jyh.main.dao.SalaryDao;
 import com.jyh.main.dao.UserDao;
+import com.jyh.main.modle.Position;
 import com.jyh.main.modle.Privilege;
 import com.jyh.main.modle.Role;
 import com.jyh.main.modle.Salary;
@@ -38,6 +39,9 @@ public class UserController {
     
     @Autowired
     private PrivilegeDao privilegeDao;
+    
+    @Autowired
+    private PositionDao positionDao;
     
     @Autowired
     private SalaryDao salaryDao;
@@ -72,10 +76,12 @@ public class UserController {
     	Role role= new Role();
     	Privilege privilege= new Privilege();
     	Salary salary = new Salary();
+    	Position position = new Position();
     	if(!(user==null)) {
     		role = roleDao.findRoleById(user.getR_id());
     		privilege = privilegeDao.findPrivilegeById(user.getP_id());
     		salary = salaryDao.findSalaryByName(user.getS_id());
+    		position = positionDao.findPositionById(user.getPos_id());
     	}
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("responseParam", "查询结束");
@@ -107,6 +113,13 @@ public class UserController {
 			map.put("status", 200);
 			 map.put("salary", salary);
 		}
+        if (position==null) {
+        	map.put("status", 202);
+        	map.put("position", new Position());
+		}else {
+			map.put("status", 200);
+			 map.put("position", position);
+		}
     	RedisUtil.StringOps.set("user", new Gson().toJson(map));
         return new Gson().toJson(map);
     }
@@ -121,6 +134,7 @@ public class UserController {
     	Role role = new Role();
     	Privilege privilege = new Privilege();
     	Salary salary = new Salary();
+    	Position position = new Position();
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>(); 
         map.put("responseParam", "查询结束");
         UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassWord());
@@ -134,12 +148,14 @@ public class UserController {
          	 role= roleDao.findRoleById(user.getR_id()) ;
          	 privilege= privilegeDao.findPrivilegeById(user.getP_id());
          	 salary = salaryDao.findSalaryById(user.getUsername(), user.getS_id());
+         	 position = positionDao.findPositionById(user.getPos_id());
          	 map.put("responseParam", "查询结束");
          	 map.put("status", 200);
          	 map.put("user", user);
          	 map.put("privilege", privilege);
          	 map.put("role", role);
          	 map.put("salary", salary);
+         	 map.put("position", position);
              RedisUtil.StringOps.set("user", new Gson().toJson(map));
              return "success";
          }catch(Exception e){
@@ -153,6 +169,7 @@ public class UserController {
          	 map.put("privilege", privilege);
          	 map.put("role", privilege);
          	 map.put("salary", salary);
+         	 map.put("position", position);
              RedisUtil.StringOps.set("user", new Gson().toJson(map));
              return "login";
          }

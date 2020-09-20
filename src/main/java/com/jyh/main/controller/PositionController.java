@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.jyh.main.dao.PositionDao;
-import com.jyh.main.dao.RoleDao;
 import com.jyh.main.modle.Position;
-import com.jyh.main.modle.Role;
 import com.jyh.main.util.RedisUtil;
  
 @RestController

@@ -41,7 +41,7 @@ public class MyRealm extends AuthorizingRealm {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         // 给该用户设置角色，角色信息存在 role 表中取
         HashSet<String> hashSet = new HashSet<String>();
-        hashSet.add(roleDao.findRoleById(user.getRole_id()).getRole_name());
+        hashSet.add(roleDao.findRoleById(user.getR_id()).getRole_name());
         authorizationInfo.setRoles(hashSet);
         // 给该用户设置权限，权限信息存在 privilege表中取
         hashSet = new HashSet<String>();

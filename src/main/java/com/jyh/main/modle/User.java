@@ -5,15 +5,14 @@ public class User {
          private String password;
          private String name;
          private String nikeName;
-         private String ranking;
          private String reMark;
          private String icoPath;
          private String summarise;
-         private String salary;
          private String age;
-         private String role_id;
+         private String r_id;
          private String p_id;
-
+         private String s_id;
+         private String pos_id;
 		public String getPassWord() {
 			return password;
 		}
@@ -31,12 +30,6 @@ public class User {
 		}
 		public void setNikeName(String nikeName) {
 			this.nikeName = nikeName;
-		}
-		public String getRanking() {
-			return ranking;
-		}
-		public void setRanking(String ranking) {
-			this.ranking = ranking;
 		}
 		public String getReMark() {
 			return reMark;
@@ -56,23 +49,11 @@ public class User {
 		public void setSummarise(String summarise) {
 			this.summarise = summarise;
 		}
-		public String getSalary() {
-			return salary;
-		}
-		public void setSalary(String salary) {
-			this.salary = salary;
-		}
 		public String getAge() {
 			return age;
 		}
 		public void setAge(String age) {
 			this.age = age;
-		}
-		public String getRole_id() {
-			return role_id;
-		}
-		public void setRole_id(String role_id) {
-			this.role_id = role_id;
 		}
 		public String getP_id() {
 			return p_id;
@@ -85,6 +66,24 @@ public class User {
 		}
 		public void setUsername(String username) {
 			this.username = username;
+		}
+		public String getR_id() {
+			return r_id;
+		}
+		public void setR_id(String r_id) {
+			this.r_id = r_id;
+		}
+		public String getS_id() {
+			return s_id;
+		}
+		public void setS_id(String s_id) {
+			this.s_id = s_id;
+		}
+		public String getPos_id() {
+			return pos_id;
+		}
+		public void setPos_id(String pos_id) {
+			this.pos_id = pos_id;
 		}
          
 }

@@ -43,14 +43,14 @@ public class UserDao {
         Update update= new Update().set("password", user.getPassWord())
         		.set("name", user.getName())
         		.set("nikeName", user.getNikeName())
-        		.set("ranking", user.getRanking())
         		.set("reMark", user.getReMark())
         		.set("icoPath", user.getIcoPath())
         		.set("summarise", user.getSummarise())
-        		.set("salary", user.getSalary())
+        		.set("s_id", user.getS_id())
         		.set("age",user.getAge())
-        		.set("role_id", user.getRole_id())
+        		.set("r_id", user.getR_id())
         		.set("p_id", user.getP_id())
+        		.set("pos_id", user.getPos_id())
         		;
         //更新查询返回结果集的第一条
         mongoTemplate.updateFirst(query,update,User.class);

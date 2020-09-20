@@ -72,6 +72,10 @@ public class ShiroConfig {
         filterChainMap.put("/privilege/**", "roles[User]");
         // “/user/teacher” 开头的用户需要权限认证，是“user:create”才允许
         filterChainMap.put("/privilege/**", "perms[admin]");
+        // “/user/student” 开头的用户需要角色认证，是“admin”才允许
+        filterChainMap.put("/salary/**", "anon");
+        // “/user/teacher” 开头的用户需要权限认证，是“user:create”才允许
+        filterChainMap.put("/salary/**", "anon");
         // 配置 logout 过滤器
         filterChainMap.put("/logout", "logout");
         // 设置 shiroFilterFactoryBean 的 FilterChainDefinitionMap

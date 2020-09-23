@@ -1,5 +1,8 @@
 package com.jyh.main.dao;
  
+import java.util.LinkedList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -7,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.jyh.main.modle.Role;
 import com.jyh.main.modle.Salary;
 
  
@@ -33,7 +37,14 @@ public class SalaryDao {
         Salary salary =  mongoTemplate.findOne(query , Salary.class);
         return salary;
     }
- 
+   
+    public List<Salary> findSalaryList(){
+    	List<Salary> list = new LinkedList<Salary>();
+    	Query query = new Query(Criteria.byExample(new Salary()));
+    	list = mongoTemplate.find(query,Salary.class);
+    	return list;
+    }
+    
     /**
      * 更新对象
      */

@@ -3,6 +3,8 @@ package com.jyh.main.controller;
  
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -27,7 +29,7 @@ public class SalaryController {
     	salaryDaoDao.saveSalary(salary);
     }
     
-    @GetMapping(value = "/salary/getSalary")
+    @GetMapping(value = "/salary/findSalary")
     public String findSalaryByName(String s_id,HttpServletRequest request,HttpSession httpSession){
     	System.out.println("s_id = " + s_id );
     	Salary salary = salaryDaoDao.findSalaryByName(s_id);
@@ -43,7 +45,22 @@ public class SalaryController {
     	RedisUtil.StringOps.set("salary", new Gson().toJson(map));
         return new Gson().toJson(map);
     }
-    
+    @GetMapping(value="/salary/findSalaryList")
+    public String findSalaryList(HttpServletRequest request){
+    	List<Salary> list = new LinkedList<Salary>();
+    	list = salaryDaoDao.findSalaryList();
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("responseParam", "查询结束");
+        if (list==null) {
+        	map.put("status", 202);
+        	map.put("salaryList", new LinkedList<Salary>());
+		}else {
+			map.put("status", 200);
+			 map.put("salaryList", list);
+		}
+    	RedisUtil.StringOps.set("salaryList",new Gson().toJson(map));
+        return new Gson().toJson(map);
+    }
     @GetMapping(value="/salary/updateSalary")
     public String updateUser(Salary salary){
     	Salary salary2= salaryDaoDao.updateSalary(salary);

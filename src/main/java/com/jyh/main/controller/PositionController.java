@@ -3,6 +3,8 @@ package com.jyh.main.controller;
  
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,7 +24,7 @@ public class PositionController {
     private PositionDao positionDao;
     
     
-    @GetMapping(value="/position/savePosition")
+    @GetMapping(value="/position/addPosition")
     public void savePosition(Position position) throws Exception {
     	positionDao.savePosition(position);
     }
@@ -44,6 +46,22 @@ public class PositionController {
         return new Gson().toJson(map);
     }
  
+    @GetMapping(value="/position/findPositionList")
+    public String findPositionList(HttpServletRequest request){
+    	List<Position> list = new LinkedList<Position>();
+    	list = positionDao.findPositionList();
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("responseParam", "查询结束");
+        if (list==null) {
+        	map.put("status", 202);
+        	map.put("positionList", new LinkedList<Position>());
+		}else {
+			map.put("status", 200);
+			 map.put("positionList", list);
+		}
+    	RedisUtil.StringOps.set("positionList",new Gson().toJson(map));
+        return new Gson().toJson(map);
+    }
     
     @GetMapping(value="/position/updatePosition")
     public String updateRole(Position position){

@@ -1,5 +1,9 @@
 package com.jyh.main.dao;
  
+import java.util.LinkedList;
+import java.util.List;
+
+import org.mozilla.javascript.ast.NewExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -32,6 +36,13 @@ public class PrivilegeDao {
         Query query=new Query(Criteria.where("p_id").is(p_id));
         Privilege privilege =  mongoTemplate.findOne(query , Privilege.class);
         return privilege!=null?privilege:new Privilege();
+    }
+    
+    public List<Privilege> findPrivilegeList(){
+    	List<Privilege> list = new LinkedList<Privilege>();
+    	Query query = new Query(Criteria.byExample(new Privilege()));
+    	list = mongoTemplate.find(query,Privilege.class);
+    	return list;
     }
  
     /**

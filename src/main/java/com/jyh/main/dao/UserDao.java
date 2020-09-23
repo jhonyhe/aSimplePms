@@ -1,5 +1,8 @@
 package com.jyh.main.dao;
  
+import java.util.LinkedList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -7,6 +10,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import com.jyh.main.modle.Position;
 import com.jyh.main.modle.User;
 
  
@@ -33,7 +37,13 @@ public class UserDao {
         User user =  mongoTemplate.findOne(query , User.class);
         return user;
     }
- 
+    
+    public List<User> findUserList() {
+    	List<User> list = new LinkedList<User>();
+    	Query query = new Query(Criteria.byExample(new User()));
+    	list = mongoTemplate.find(query,User.class);
+    	return list;
+    }
     /**
      * 更新对象
      */

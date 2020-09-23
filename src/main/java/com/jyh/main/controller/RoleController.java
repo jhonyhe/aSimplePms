@@ -3,6 +3,8 @@ package com.jyh.main.controller;
  
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,7 +45,22 @@ public class RoleController {
     	RedisUtil.StringOps.set("role",new Gson().toJson(map));
         return new Gson().toJson(map);
     }
- 
+    @GetMapping(value="/role/findRoleList")
+    public String findRoleList(HttpServletRequest request){
+    	List<Role> list = new LinkedList<Role>();
+    	list = roleDao.findRoleList();
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("responseParam", "查询结束");
+        if (list==null) {
+        	map.put("status", 202);
+        	map.put("roleList", new LinkedList<Role>());
+		}else {
+			map.put("status", 200);
+			 map.put("roleList", list);
+		}
+    	RedisUtil.StringOps.set("roleList",new Gson().toJson(map));
+        return new Gson().toJson(map);
+    }
     
     @GetMapping(value="/role/updateRole")
     public String updateRole(Role role){

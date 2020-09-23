@@ -3,6 +3,8 @@ package com.jyh.main.controller;
  
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,7 +45,21 @@ public class PrivilegeController {
     	RedisUtil.StringOps.set("privilege",new Gson().toJson(map));
         return new Gson().toJson(map);
     }
- 
+    @GetMapping(value="/privilege/findPrivilegeList")
+    public String findPrivilegeList(HttpServletRequest request){
+    	List<Privilege> list = privilegeDao.findPrivilegeList();
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("responseParam", "查询结束");
+        if (list==null) {
+        	map.put("status", 202);
+        	map.put("privilegeList", new LinkedList<Privilege>());
+		}else {
+			map.put("status", 200);
+			 map.put("privilegeList", list);
+		}
+    	RedisUtil.StringOps.set("privilegeList",new Gson().toJson(map));
+        return new Gson().toJson(map);
+    }
     
     @GetMapping(value="/privilege/updatePrivilege")
     public String updatePrivilege(Privilege privilege){

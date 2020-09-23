@@ -3,6 +3,8 @@ package com.jyh.main.controller;
  
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -69,7 +71,25 @@ public class UserController {
     	 return "unauthorized";
     }
     
-    @GetMapping(value = "/user/getUser")
+    @GetMapping(value = "/user/findUserList")
+    public String findUserList() {
+    	
+    	List<User> list = new LinkedList<User>();
+    	list = userDao.findUserList();
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("responseParam", "查询结束");
+        if (list==null) {
+        	map.put("status", 202);
+        	map.put("userList", new LinkedList<User>());
+		}else {
+			map.put("status", 200);
+			 map.put("userList", list);
+		}
+    	RedisUtil.StringOps.set("userList",new Gson().toJson(map));
+        return new Gson().toJson(map);
+    }
+    
+    @GetMapping(value = "/user/findUser")
     public String findUserByName(String username,HttpServletRequest request,HttpSession httpSession){
     	System.out.println("username = " + username );
     	User user = userDao.findUserByName(username);
@@ -157,7 +177,9 @@ public class UserController {
          	 map.put("salary", salary);
          	 map.put("position", position);
              RedisUtil.StringOps.set("user", new Gson().toJson(map));
-             return "success";
+             String callback = request.getParameter("callback");    
+             String retStr = callback + "("+new Gson().toJson(map)+")";
+             return retStr;
          }catch(Exception e){
              e.printStackTrace();
              user = new User();
@@ -171,7 +193,9 @@ public class UserController {
          	 map.put("salary", salary);
          	 map.put("position", position);
              RedisUtil.StringOps.set("user", new Gson().toJson(map));
-             return "login";
+             String callback = request.getParameter("callback");    
+             String retStr = callback + "("+new Gson().toJson(map)+")";
+             return retStr;
          }
         //return new Gson().toJson(map);
     }

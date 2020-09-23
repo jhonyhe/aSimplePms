@@ -1,5 +1,8 @@
 package com.jyh.main.dao;
  
+import java.util.LinkedList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,7 +36,13 @@ public class PositionDao {
         Position position =  mongoTemplate.findOne(query , Position.class);
         return position;
     }
- 
+    
+    public List<Position> findPositionList(){
+    	List<Position> list = new LinkedList<Position>();
+    	Query query = new Query(Criteria.byExample(new Position()));
+    	list = mongoTemplate.find(query,Position.class);
+    	return list;
+    }
     /**
      * 更新对象
      */

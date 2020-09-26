@@ -9,6 +9,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.catalina.connector.Request;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
@@ -49,8 +50,14 @@ public class UserController {
     private SalaryDao salaryDao;
     
     @GetMapping(value="/user/addUser")
-    public void saveUser(User user) throws Exception {
+    public String saveUser(User user,Request request) throws Exception {
     	userDao.saveUser(user);
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("status", 200);
+        map.put("responseParam", "保存用户成功");
+    	String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
     
     @GetMapping(value = "/success")
@@ -72,12 +79,12 @@ public class UserController {
     }
     
     @GetMapping(value = "/user/findUserList")
-    public String findUserList() {
+    public String findUserList(Request request) {
     	
     	List<User> list = new LinkedList<User>();
     	list = userDao.findUserList();
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
-        map.put("responseParam", "查询结束");
+        map.put("responseParam", "查询用户列表结束");
         if (list==null) {
         	map.put("status", 202);
         	map.put("userList", new LinkedList<User>());
@@ -86,10 +93,12 @@ public class UserController {
 			 map.put("userList", list);
 		}
     	RedisUtil.StringOps.set("userList",new Gson().toJson(map));
-        return new Gson().toJson(map);
+    	String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
     
-    @GetMapping(value = "/user/findUser")
+    @GetMapping(value = "/user/findUserByName")
     public String findUserByName(String username,HttpServletRequest request,HttpSession httpSession){
     	System.out.println("username = " + username );
     	User user = userDao.findUserByName(username);
@@ -104,7 +113,7 @@ public class UserController {
     		position = positionDao.findPositionById(user.getPos_id());
     	}
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
-        map.put("responseParam", "查询结束");
+        map.put("responseParam", "查询用户结束");
         if (role==null) {
         	map.put("status", 202);
         	map.put("role", new Role());
@@ -141,7 +150,9 @@ public class UserController {
 			 map.put("position", position);
 		}
     	RedisUtil.StringOps.set("user", new Gson().toJson(map));
-        return new Gson().toJson(map);
+    	String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
     
     @RequestMapping(value="/login")
@@ -156,7 +167,6 @@ public class UserController {
     	Salary salary = new Salary();
     	Position position = new Position();
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>(); 
-        map.put("responseParam", "查询结束");
         UsernamePasswordToken token = new UsernamePasswordToken(user.getUsername(), user.getPassWord());
          // 获取 subject 认证主体
          Subject subject = SecurityUtils.getSubject();
@@ -169,7 +179,7 @@ public class UserController {
          	 privilege= privilegeDao.findPrivilegeById(user.getP_id());
          	 salary = salaryDao.findSalaryById(user.getUsername(), user.getS_id());
          	 position = positionDao.findPositionById(user.getPos_id());
-         	 map.put("responseParam", "查询结束");
+         	 map.put("responseParam", "登录成功");
          	 map.put("status", 200);
          	 map.put("user", user);
          	 map.put("privilege", privilege);
@@ -181,11 +191,12 @@ public class UserController {
              String retStr = callback + "("+new Gson().toJson(map)+")";
              return retStr;
          }catch(Exception e){
-             e.printStackTrace();
+        	 //验证未通过
+        	 System.out.println(e.toString());
              user = new User();
              request.getSession().setAttribute("user", user);
              request.setAttribute("error", "用户名或密码错误！");
-             map.put("responseParam", "查询结束");
+             map.put("responseParam", "登录失败");
          	 map.put("status", 202);
          	 map.put("user", user);
          	 map.put("privilege", privilege);
@@ -193,29 +204,37 @@ public class UserController {
          	 map.put("salary", salary);
          	 map.put("position", position);
              RedisUtil.StringOps.set("user", new Gson().toJson(map));
-             String callback = request.getParameter("callback");    
-             String retStr = callback + "("+new Gson().toJson(map)+")";
+             String retStr = "fail" + "("+new Gson().toJson(map)+")";
              return retStr;
+             
          }
         //return new Gson().toJson(map);
     }
  
     
     @GetMapping(value="/user/updateUser")
-    public String updateUser(User user){
+    public String updateUser(User user,Request request){
     	User users= userDao.updateUser(user);
     	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
          map.put("status", 200);
          map.put("responseParam", "更新结束");
          map.put("user", users);
     	RedisUtil.StringOps.set("user", new Gson().toJson(map));
-    	return new Gson().toJson(map);
+    	String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
  
     @GetMapping(value="/user/deleteUser")
-    public void deleteUserById(String username){
+    public String deleteUserById(String username,Request request){
         userDao.deleteUserById(username);
         RedisUtil.StringOps.set("user", new String());
         System.out.println("In redis user is " + RedisUtil.StringOps.get("user"));
+        LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("status", 200);
+        map.put("responseParam", "删除成功");
+        String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
 }

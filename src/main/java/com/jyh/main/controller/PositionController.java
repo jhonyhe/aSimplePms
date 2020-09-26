@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.catalina.connector.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +26,14 @@ public class PositionController {
     
     
     @GetMapping(value="/position/addPosition")
-    public void savePosition(Position position) throws Exception {
+    public String savePosition(Position position,Request request) throws Exception {
     	positionDao.savePosition(position);
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("status", 200);
+        map.put("responseParam", "保存职位成功");
+    	String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
  
     @GetMapping(value="/position/findPosition")
@@ -34,7 +41,7 @@ public class PositionController {
     	System.out.println("pos_id = " + pos_id);
     	Position position = positionDao.findPositionById(pos_id);
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
-        map.put("responseParam", "查询结束");
+        map.put("responseParam", "职位查询结束");
         if (position==null) {
         	map.put("status", 202);
         	map.put("position", new Position());
@@ -43,7 +50,9 @@ public class PositionController {
 			 map.put("position", position);
 		}
     	RedisUtil.StringOps.set("position",new Gson().toJson(map));
-        return new Gson().toJson(map);
+    	String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
  
     @GetMapping(value="/position/findPositionList")
@@ -51,7 +60,7 @@ public class PositionController {
     	List<Position> list = new LinkedList<Position>();
     	list = positionDao.findPositionList();
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
-        map.put("responseParam", "查询结束");
+        map.put("responseParam", "职位列表查询结束");
         if (list==null) {
         	map.put("status", 202);
         	map.put("positionList", new LinkedList<Position>());
@@ -60,14 +69,16 @@ public class PositionController {
 			 map.put("positionList", list);
 		}
     	RedisUtil.StringOps.set("positionList",new Gson().toJson(map));
-        return new Gson().toJson(map);
+    	String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
     
     @GetMapping(value="/position/updatePosition")
-    public String updateRole(Position position){
+    public String updateRole(Position position,Request request){
     	Position newposition= positionDao.updatePosition(position);
     	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
-         map.put("responseParam", "查询结束");
+         map.put("responseParam", "职位更新结束");
          if (newposition==null) {
          	map.put("status", 202);
          	map.put("position", new Position());
@@ -76,13 +87,21 @@ public class PositionController {
  			 map.put("position", newposition);
  		}
     	RedisUtil.StringOps.set("position", new Gson().toJson(map));
-    	return new Gson().toJson(map);
+    	String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
  
     @GetMapping(value="/position/deletePosition")
-    public void deletePositionById(String pos_id){
+    public String deletePositionById(String pos_id,Request request){
     	positionDao.deletePositionById(pos_id);
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+        map.put("responseParam", "职位删除结束");
+        map.put("status", 200);
         RedisUtil.StringOps.set("position", new String());
         System.out.println("In redis role is " + RedisUtil.StringOps.get("position"));
+        String callback = request.getParameter("callback");    
+        String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
+        return retStr;
     }
 }

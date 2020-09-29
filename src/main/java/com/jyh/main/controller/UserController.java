@@ -204,7 +204,8 @@ public class UserController {
          	 map.put("salary", salary);
          	 map.put("position", position);
              RedisUtil.StringOps.set("user", new Gson().toJson(map));
-             String retStr = "fail" + "("+new Gson().toJson(map)+")";
+             String callback = request.getParameter("callback");    
+             String retStr = (null==callback||callback.equals(""))?"fail":callback + "("+new Gson().toJson(map)+")";
              return retStr;
              
          }

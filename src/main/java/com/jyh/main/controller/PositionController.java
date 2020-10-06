@@ -136,7 +136,7 @@ public class PositionController {
 	       		 return "error";
 				}
 		}
-        System.out.println("In redis role is " + RedisUtil.StringOps.get("position"));
+        System.out.println("In redis position is " + RedisUtil.StringOps.get("position"));
         String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;

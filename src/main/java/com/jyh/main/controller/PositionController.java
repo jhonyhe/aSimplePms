@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.jyh.main.dao.PositionDao;
 import com.jyh.main.modle.Position;
+import com.jyh.main.util.CloseUtil;
 import com.jyh.main.util.RedisUtil;
  
 @RestController
@@ -27,7 +28,12 @@ public class PositionController {
     
     @GetMapping(value="/position/addPosition")
     public String savePosition(Position position,Request request) throws Exception {
-    	positionDao.savePosition(position);
+    	try {
+    		positionDao.savePosition(position);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			return "error";
+		}
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("status", 200);
         map.put("responseParam", "保存职位成功");
@@ -38,9 +44,9 @@ public class PositionController {
  
     @GetMapping(value="/position/findPosition")
     public String findPositionById(String pos_id,HttpServletRequest request){
-    	System.out.println("pos_id = " + pos_id);
-    	Position position = positionDao.findPositionById(pos_id);
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	Position position = positionDao.findPositionById(pos_id);
         map.put("responseParam", "职位查询结束");
         if (position==null) {
         	map.put("status", 202);
@@ -49,7 +55,14 @@ public class PositionController {
 			map.put("status", 200);
 			 map.put("position", position);
 		}
-    	RedisUtil.StringOps.set("position",new Gson().toJson(map));
+        	RedisUtil.StringOps.set("position",new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -58,8 +71,9 @@ public class PositionController {
     @GetMapping(value="/position/findPositionList")
     public String findPositionList(HttpServletRequest request){
     	List<Position> list = new LinkedList<Position>();
-    	list = positionDao.findPositionList();
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	list = positionDao.findPositionList();
         map.put("responseParam", "职位列表查询结束");
         if (list==null) {
         	map.put("status", 202);
@@ -68,7 +82,14 @@ public class PositionController {
 			map.put("status", 200);
 			 map.put("positionList", list);
 		}
-    	RedisUtil.StringOps.set("positionList",new Gson().toJson(map));
+        	RedisUtil.StringOps.set("positionList",new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -76,8 +97,9 @@ public class PositionController {
     
     @GetMapping(value="/position/updatePosition")
     public String updateRole(Position position,Request request){
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
     	Position newposition= positionDao.updatePosition(position);
-    	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
          map.put("responseParam", "职位更新结束");
          if (newposition==null) {
          	map.put("status", 202);
@@ -86,7 +108,14 @@ public class PositionController {
  			map.put("status", 200);
  			 map.put("position", newposition);
  		}
-    	RedisUtil.StringOps.set("position", new Gson().toJson(map));
+        	RedisUtil.StringOps.set("position", new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -94,11 +123,19 @@ public class PositionController {
  
     @GetMapping(value="/position/deletePosition")
     public String deletePositionById(String pos_id,Request request){
-    	positionDao.deletePositionById(pos_id);
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	positionDao.deletePositionById(pos_id);
         map.put("responseParam", "职位删除结束");
         map.put("status", 200);
-        RedisUtil.StringOps.set("position", new String());
+        	RedisUtil.StringOps.set("position", new String());
+        }catch (Exception e) {
+        	System.out.println(e.toString());
+        	if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
         System.out.println("In redis role is " + RedisUtil.StringOps.get("position"));
         String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";

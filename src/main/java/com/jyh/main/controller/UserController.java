@@ -29,6 +29,7 @@ import com.jyh.main.modle.Privilege;
 import com.jyh.main.modle.Role;
 import com.jyh.main.modle.Salary;
 import com.jyh.main.modle.User;
+import com.jyh.main.util.CloseUtil;
 import com.jyh.main.util.RedisUtil;
  
 @RestController
@@ -51,7 +52,12 @@ public class UserController {
     
     @GetMapping(value="/user/addUser")
     public String saveUser(User user,Request request) throws Exception {
-    	userDao.saveUser(user);
+    	try {
+    		userDao.saveUser(user);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			return "error";
+		}
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("status", 200);
         map.put("responseParam", "保存用户成功");
@@ -81,9 +87,11 @@ public class UserController {
     @GetMapping(value = "/user/findUserList")
     public String findUserList(Request request) {
     	
+    	
     	List<User> list = new LinkedList<User>();
-    	list = userDao.findUserList();
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	list = userDao.findUserList();
         map.put("responseParam", "查询用户列表结束");
         if (list==null) {
         	map.put("status", 202);
@@ -92,7 +100,14 @@ public class UserController {
 			map.put("status", 200);
 			 map.put("userList", list);
 		}
-    	RedisUtil.StringOps.set("userList",new Gson().toJson(map));
+        	RedisUtil.StringOps.set("userList",new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+       		 CloseUtil.close();
+       		 return "error";
+			}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -101,6 +116,8 @@ public class UserController {
     @GetMapping(value = "/user/findUserByName")
     public String findUserByName(String username,HttpServletRequest request,HttpSession httpSession){
     	System.out.println("username = " + username );
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
     	User user = userDao.findUserByName(username);
     	Role role= new Role();
     	Privilege privilege= new Privilege();
@@ -112,7 +129,6 @@ public class UserController {
     		salary = salaryDao.findSalaryByName(user.getS_id());
     		position = positionDao.findPositionById(user.getPos_id());
     	}
-    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("responseParam", "查询用户结束");
         if (role==null) {
         	map.put("status", 202);
@@ -149,7 +165,15 @@ public class UserController {
 			map.put("status", 200);
 			 map.put("position", position);
 		}
-    	RedisUtil.StringOps.set("user", new Gson().toJson(map));
+        
+        	RedisUtil.StringOps.set("user", new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			 if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+        		 CloseUtil.close();
+        		 return "error";
+			}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -193,34 +217,45 @@ public class UserController {
          }catch(Exception e){
         	 //验证未通过
         	 System.out.println(e.toString());
-             user = new User();
-             request.getSession().setAttribute("user", user);
-             request.setAttribute("error", "用户名或密码错误！");
-             map.put("responseParam", "登录失败");
-         	 map.put("status", 202);
-         	 map.put("user", user);
-         	 map.put("privilege", privilege);
-         	 map.put("role", privilege);
-         	 map.put("salary", salary);
-         	 map.put("position", position);
-             RedisUtil.StringOps.set("user", new Gson().toJson(map));
-             String callback = request.getParameter("callback");    
-             String retStr = (null==callback||callback.equals(""))?"fail":callback + "("+new Gson().toJson(map)+")";
-             return retStr;
-             
+        	 if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+        		 CloseUtil.close();
+        		 return "error";
+			}else {
+	             user = new User();
+	             request.getSession().setAttribute("user", user);
+	             request.setAttribute("error", "用户名或密码错误！");
+	             map.put("responseParam", "登录失败");
+	         	 map.put("status", 202);
+	         	 map.put("user", user);
+	         	 map.put("privilege", privilege);
+	         	 map.put("role", privilege);
+	         	 map.put("salary", salary);
+	         	 map.put("position", position);
+	             RedisUtil.StringOps.set("user", new Gson().toJson(map));
+	             String callback = request.getParameter("callback");    
+	             String retStr = (null==callback||callback.equals(""))?"fail":callback + "("+new Gson().toJson(map)+")";
+	             return retStr;
+			}
          }
-        //return new Gson().toJson(map);
     }
  
     
     @GetMapping(value="/user/updateUser")
     public String updateUser(User user,Request request){
-    	User users= userDao.updateUser(user);
     	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	User users= userDao.updateUser(user);
          map.put("status", 200);
          map.put("responseParam", "更新结束");
          map.put("user", users);
-    	RedisUtil.StringOps.set("user", new Gson().toJson(map));
+    		RedisUtil.StringOps.set("user", new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+       		 CloseUtil.close();
+       		 return "error";
+			}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -228,8 +263,16 @@ public class UserController {
  
     @GetMapping(value="/user/deleteUser")
     public String deleteUserById(String username,Request request){
-        userDao.deleteUserById(username);
-        RedisUtil.StringOps.set("user", new String());
+    	try {
+    		userDao.deleteUserById(username);
+        	RedisUtil.StringOps.set("user", new String());
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+			}
+		}
         System.out.println("In redis user is " + RedisUtil.StringOps.get("user"));
         LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("status", 200);

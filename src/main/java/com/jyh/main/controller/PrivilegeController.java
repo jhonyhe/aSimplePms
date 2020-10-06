@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.jyh.main.dao.PrivilegeDao;
 import com.jyh.main.modle.Privilege;
+import com.jyh.main.util.CloseUtil;
 import com.jyh.main.util.RedisUtil;
  
 @RestController
@@ -27,7 +28,12 @@ public class PrivilegeController {
     
     @GetMapping(value="/privilege/addPrivilege")
     public String savePrivilege(Privilege privilege,Request request) throws Exception {
-    	privilegeDao.savePrivilege(privilege);
+    	try {
+    		privilegeDao.savePrivilege(privilege);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			return "error";
+		}
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("status", 200);
         map.put("responseParam", "保存权限成功");
@@ -38,9 +44,9 @@ public class PrivilegeController {
  
     @GetMapping(value="/privilege/findPrivilege")
     public String findPrivilegeById(String p_id,HttpServletRequest request){
-    	System.out.println("p_id = " + p_id);
-    	Privilege privilege = privilegeDao.findPrivilegeById(p_id);
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	Privilege privilege = privilegeDao.findPrivilegeById(p_id);
         map.put("responseParam", "权限查询结束");
         if (privilege==null) {
         	map.put("status", 202);
@@ -49,15 +55,23 @@ public class PrivilegeController {
 			map.put("status", 200);
 			 map.put("privilege", privilege);
 		}
-    	RedisUtil.StringOps.set("privilege",new Gson().toJson(map));
+        	RedisUtil.StringOps.set("privilege",new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
     }
     @GetMapping(value="/privilege/findPrivilegeList")
     public String findPrivilegeList(HttpServletRequest request){
-    	List<Privilege> list = privilegeDao.findPrivilegeList();
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	List<Privilege> list = privilegeDao.findPrivilegeList();
         map.put("responseParam", "权限列表查询结束");
         if (list==null) {
         	map.put("status", 202);
@@ -66,7 +80,14 @@ public class PrivilegeController {
 			map.put("status", 200);
 			 map.put("privilegeList", list);
 		}
-    	RedisUtil.StringOps.set("privilegeList",new Gson().toJson(map));
+        	RedisUtil.StringOps.set("privilegeList",new Gson().toJson(map));
+		} catch (Exception e) {
+			 System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -74,8 +95,9 @@ public class PrivilegeController {
     
     @GetMapping(value="/privilege/updatePrivilege")
     public String updatePrivilege(Privilege privilege,Request request){
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
     	Privilege newprivilege= privilegeDao.updatePrivilege(privilege);
-    	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
          map.put("responseParam", "权限更新结束");
          if (newprivilege==null) {
          	map.put("status", 202);
@@ -84,7 +106,14 @@ public class PrivilegeController {
  			map.put("status", 200);
  			 map.put("role", newprivilege);
  		}
-    	RedisUtil.StringOps.set("privilege", new Gson().toJson(map));
+        	RedisUtil.StringOps.set("privilege", new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String callback = request.getParameter("callback");    
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -92,8 +121,16 @@ public class PrivilegeController {
  
     @GetMapping(value="/privilege/deletePrivilege")
     public String deletePrivilegeById(String p_id,Request request){
-    	privilegeDao.deletePrivilegeById(p_id);
-        RedisUtil.StringOps.set("privilege", new String());
+    	try {
+    		privilegeDao.deletePrivilegeById(p_id);
+    		RedisUtil.StringOps.set("privilege", new String());
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
         System.out.println("In redis privilege is " + RedisUtil.StringOps.get("privilege"));
         LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("responseParam", "权限删除结束");

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.jyh.main.dao.*;
 import com.jyh.main.modle.*;
+import com.jyh.main.util.CloseUtil;
 import com.jyh.main.util.RedisUtil;
  
 @RestController
@@ -27,7 +28,12 @@ public class SalaryController {
     
     @GetMapping(value="/salary/addSalary")
     public String saveSalary(Salary salary,Request request) throws Exception {
-    	salaryDaoDao.saveSalary(salary);
+    	try {
+    		salaryDaoDao.saveSalary(salary);
+    	}catch (Exception e) {
+    		System.out.println(e.toString());
+    		return "error";
+		}
     	String callback = request.getParameter("callback");    
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("status", 200);
@@ -39,8 +45,10 @@ public class SalaryController {
     @GetMapping(value = "/salary/findSalary")
     public String findSalaryByName(String s_id,HttpServletRequest request,HttpSession httpSession){
     	System.out.println("s_id = " + s_id );
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	String callback = request.getParameter("callback"); 
+    	try {
     	Salary salary = salaryDaoDao.findSalaryByName(s_id);
-    	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         map.put("responseParam", "查询工资结束");
         if (salary==null) {
         	map.put("status", 202);
@@ -49,16 +57,23 @@ public class SalaryController {
 			map.put("status", 200);
 			 map.put("salary", salary);
 		}
-        String callback = request.getParameter("callback"); 
-    	RedisUtil.StringOps.set("salary", new Gson().toJson(map));
+        	RedisUtil.StringOps.set("salary", new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
     }
     @GetMapping(value="/salary/findSalaryList")
     public String findSalaryList(HttpServletRequest request){
     	List<Salary> list = new LinkedList<Salary>();
-    	list = salaryDaoDao.findSalaryList();
     	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	list = salaryDaoDao.findSalaryList();
         map.put("responseParam", "查询工资列表结束");
         if (list==null) {
         	map.put("status", 202);
@@ -67,15 +82,23 @@ public class SalaryController {
 			map.put("status", 200);
 			 map.put("salaryList", list);
 		}
-    	RedisUtil.StringOps.set("salaryList",new Gson().toJson(map));
+        	RedisUtil.StringOps.set("salaryList",new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String callback = request.getParameter("callback"); 
     	String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
     }
     @GetMapping(value="/salary/updateSalary")
     public String updateUser(Salary salary,Request request){
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
     	Salary salary2= salaryDaoDao.updateSalary(salary);
-    	 LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         if(salary2.equals(salary)) {
     	 map.put("status", 200);
         }else {
@@ -83,7 +106,14 @@ public class SalaryController {
 		}
          map.put("responseParam", "更新工资结束");
          map.put("salary", salary2);
-    	RedisUtil.StringOps.set("salary", new Gson().toJson(map));
+        	 RedisUtil.StringOps.set("salary", new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
     	String callback = request.getParameter("callback"); 
     	String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
         return retStr;
@@ -91,13 +121,21 @@ public class SalaryController {
  
     @GetMapping(value="/salary/deleteSalary")
     public String deleteSalaryById(String s_id,Request request){
-        salaryDaoDao.deleteSalaryById(s_id);
+    	LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
+    	try {
+    	salaryDaoDao.deleteSalaryById(s_id);
         RedisUtil.StringOps.set("salary", new String());
-        LinkedHashMap<Object,Object> map = new LinkedHashMap<Object, Object>();
         System.out.println("In redis salary is " + RedisUtil.StringOps.get("salary"));
         map.put("status", 200);
         map.put("responseParam", "删除工资结束");
         RedisUtil.StringOps.set("salary", new Gson().toJson(map));
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			if (e instanceof org.springframework.data.redis.RedisConnectionFailureException) {
+	       		 CloseUtil.close();
+	       		 return "error";
+				}
+		}
         String callback = request.getParameter("callback"); 
         String retStr = (callback!=null||"".equals(callback))?callback:"fail" + "("+new Gson().toJson(map)+")";
        return retStr;

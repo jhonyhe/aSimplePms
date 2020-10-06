@@ -43,8 +43,8 @@ import java.util.concurrent.TimeUnit;
  * 统一说明二: 不能跨数据类型进行操作， 否者会操作失败/操作报错。
  *            如: 向一个String类型的做Hash操作，会失败/报错......等等
  *
- * @author JustryDeng
- * @date 2020/3/7 16:50:05
+ * @author Jiangyuhe
+ * @date 2020/10/06 11:28:55
  */
 @Slf4j
 @Component
